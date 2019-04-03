@@ -1,4 +1,4 @@
-import pandas 
+import pandas
 import math
 
 from keras.models import Sequential
@@ -16,7 +16,8 @@ import time
 from config import *
 from dataPreprocessing import load_data
 from helper import RNN_model, DAE_model, mean_abs_err, PTECA, get_agg_mean_std, unstandardize_aggregate_input
-
+import res50_nt
+from res50_nt import Res50NTv1
 
 appliance_name = 'kettle'
 BATCH_SIZE = 128
@@ -52,7 +53,7 @@ print(y_test.shape)
 # list_model = [RNN_model(sequence_length), DAE_model(sequence_length)]
 # list_model = [DAE_model()]
 
-model = DAE_model(sequence_length)
+model = Res50NTv1(True, '', None,  X_train.shape[1:])
 model.summary()
 
 if mode == 'training':
@@ -63,7 +64,7 @@ if mode == 'training':
 			  epochs=num_epochs,
 			  validation_data=(X_test, y_test),
 			  callbacks=[checkpointer])
-	
+
 	end = time.time()
 	print('### Total trainning time cost: {} ###'. format(str(end - start)))
 elif mode == 'loading':
@@ -71,8 +72,8 @@ elif mode == 'loading':
 	print('loading from {}'.format("model_" + appliance_name + '_1_' + str(num_epochs) + 'epo.hdf5'))
 	model.load_weights("model_" + appliance_name + '_1_' + str(num_epochs) + 'epo.hdf5')
 
-	
-	
+
+
 ######### improvement by status detection #########
 def classify_on_off(input_matrix, max_power, threshold=0.5, off_window=60):
     result_matrix = np.zeros(input_matrix.shape)
@@ -106,7 +107,7 @@ def adjust_pre(status_matrix, pred):
             if status_matrix[i,j] < 0.5:
                 result[i,j,0] = 0
     return result
-	
+
 unstd_X_test = unstandardize_aggregate_input(X_test.reshape((X_test.shape[0], X_test.shape[1])), appliance_name)
 
 status_matrix = classify_on_off(unstd_X_test, max_power)
@@ -115,14 +116,14 @@ preds = model.predict(X_test, verbose=0)
 
 preds = adjust_pre(status_matrix, preds)
 ######### end of improvement by status detection #########
-	
+
 mae = mean_abs_err(preds, y_test) * max_power
 print('MAE is {}'.format(mae))
 
 # mae = mean_abs_err(mean_test, y_test) * max_power
 # print('MAE is {}'.format(mae))
 
-# pteca = PTECA(preds, y_test, X_test) 
+# pteca = PTECA(preds, y_test, X_test)
 # print('pteca is {}'.format(pteca))
 
 '''
