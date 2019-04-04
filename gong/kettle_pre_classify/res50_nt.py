@@ -150,7 +150,6 @@ def Res50NTv1(include_top=True, weights='',
                 name = 'fc{}'.format(i+1)
                 x = Dense(layer, name=name, activation=activation, kernel_initializer=kernel_initializer)(x)
         x = Dense(input_shape[0])(x)
-
 #        if multi_label:
 #           x = Dense(classes, activation='sigmoid', name='predictions')(x)
 #        else:
@@ -169,8 +168,8 @@ def Res50NTv1(include_top=True, weights='',
         inputs = seq_input
 
     # Create model.
-    x = Reshape(((128 - 0), 8))
-    print(x)
+    #x = Reshape(((128 - 0), 8))
+    #print(x)
     model = Model(inputs, x, name='res50_nt')
     #inputs =Tensor("input_1:0", shape=(?, 128, 1), dtype=float32)
     #x = Tensor("predictions/Softmax:0", shape=(?, 1000), dtype=float32)
