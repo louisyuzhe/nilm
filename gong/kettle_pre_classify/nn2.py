@@ -36,10 +36,11 @@ y_test = y_test.values
 
 unstd_X_test = unstandardize_aggregate_input(X_test, appliance_name)
 
+mode = 'training'
 X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
 X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
-y_train = y_train.reshape((y_train.shape[0], y_train.shape[1], 1))
-y_test = y_test.reshape((y_test.shape[0], y_test.shape[1], 1))
+#y_train = y_train.reshape((y_train.shape[0], y_train.shape[1], 1))
+#y_test = y_test.reshape((y_test.shape[0], y_test.shape[1], 1))
 
 print('Training Data:')
 print(X_train.shape)
@@ -53,7 +54,8 @@ print(y_test.shape)
 # list_model = [RNN_model(sequence_length), DAE_model(sequence_length)]
 # list_model = [DAE_model()]
 
-model = Res50NTv1(True, '', None,  X_train.shape[1:])
+#model = Res50NTv1(True, '', None, X_train.shape[1:])
+model = Res50NTv1(input_shape=X_train.shape[1:])
 model.summary()
 
 if mode == 'training':
@@ -70,7 +72,7 @@ if mode == 'training':
 elif mode == 'loading':
 	# !trainning
 	print('loading from {}'.format("model_" + appliance_name + '_1_' + str(num_epochs) + 'epo.hdf5'))
-	model.load_weights("model_" + appliance_name + '_1_' + str(num_epochs) + 'epo.hdf5')
+	model.load_weights("model_" + appliance_name + '_1_' + str(num_epochs) + 'epo.hdf5', by_name=True)
 
 
 
@@ -109,6 +111,7 @@ def adjust_pre(status_matrix, pred):
     return result
 
 unstd_X_test = unstandardize_aggregate_input(X_test.reshape((X_test.shape[0], X_test.shape[1])), appliance_name)
+unstd_X_test = unstandardize_aggregate_input(X_test, appliance_name)
 
 status_matrix = classify_on_off(unstd_X_test, max_power)
 
